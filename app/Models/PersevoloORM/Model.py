@@ -125,4 +125,38 @@ class Model(ABC):
             cls.save_all(instances)
             return instances
     
+    def __repr__(self): #Representación en cadena de la instancia del modelo
+        field_values = ', '.join(f"{field}={getattr(self, field)!r}" for field in self._fields)
+        return f"{self.__class__.__name__}({field_values})"
+    
+    def __eq__(self, other): #Comparar dos instancias del modelo
+        if not isinstance(other, self.__class__):
+            return False
+        return all(getattr(self, field) == getattr(other, field) for field in self._fields)
+    
+    def __hash__(self): #Generar un hash para la instancia del modelo
+        return hash(tuple(getattr(self, field) for field in self._fields))
+    
+    @classmethod
+    def count(cls): #Contar el número de instancias del modelo en el archivo CSV
+        return len(cls.all())
+    
+    @classmethod
+    def exists(cls, **kwargs): #Verificar si existe una instancia del modelo que coincida con los criterios dados
+        return any(all(getattr(instance, key) == value for key, value in kwargs.items()) for instance in cls.all())
+    
+    @classmethod
+    def filter(cls, filter_func): #Filtrar instancias del modelo usando una función de filtro personalizada
+        return [instance for instance in cls.all() if filter_func(instance)]
+    
+    @classmethod
+    def map(cls, map_func): #Mapear instancias del modelo usando una función de mapeo personalizada
+        return [map_func(instance) for instance in cls.all()]
+    
+    @classmethod
+    def reduce(cls, reduce_func, initial=None): #Reducir instancias del modelo usando una función de reducción personalizada
+        from functools import reduce
+        return reduce(reduce_func, cls.all(), initial)
+    
+    
 

@@ -1,6 +1,6 @@
-from .PersevoloORM import Model
+from .PersevoloORM.Model import Model
 class Cliente(Model):
-    _fields = ['nro_cliente', 'nombre', 'apellido', 'dni', 'email', 'telefono']
+    _fields = ['id', 'nombre', 'apellido', 'dni', 'email', 'telefono']
     _filename = 'clientes.csv'
 
     """ def __init__(self, **kwargs):

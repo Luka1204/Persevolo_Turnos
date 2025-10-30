@@ -1,319 +1,287 @@
-from typing import List, Dict, Any, Optional
-from ..FileHandler import FileHandler
+from typing import Any, Dict, List, Optional
+from datetime import datetime
 
-class Request:
+class Request():
     """
-    Modelo Request para operaciones de consulta y manipulación de datos
-    Proporciona una interfaz fluid  a para trabajar con los modelos
+    Modelo Request para recibir y validar datos de entrada del usuario
+    Actúa como DTO (Data Transfer Object) entre la vista y el controlador
     """
     
-    def __init__(self, model_class: type):
+    def __init__(self, data: Dict[str, Any] = None):
         """
-        Inicializar Request para una clase de modelo específica
+        Inicializar Request con datos
         
         Args:
-            model_class: Clase del modelo (ej: Cliente, Turno, etc.)
+            data: Diccionario con datos de la solicitud
         """
-        self.model_class = model_class
-        self._filters = {}
-        self._limit = None
-        self._offset = 0
-        self._order_by = None
-        self._ascending = True
+        self._data = data or {}
+        self._errors = {}
+        self._validated_data = {}
     
-    def filter(self, **filters) -> 'Request':
+    @property
+    def data(self) -> Dict[str, Any]:
+        """Obtener datos originales"""
+        return self._data.copy()
+    
+    @property
+    def validated_data(self) -> Dict[str, Any]:
+        """Obtener datos validados"""
+        return self._validated_data.copy()
+    
+    @property
+    def errors(self) -> Dict[str, str]:
+        """Obtener errores de validación"""
+        return self._errors.copy()
+    
+    def has_errors(self) -> bool:
+        """Verificar si hay errores de validación"""
+        return len(self._errors) > 0
+    
+    def is_valid(self) -> bool:
+        """Verificar si la request es válida"""
+        return len(self._errors) == 0
+    
+    def get(self, key: str, default: Any = None) -> Any:
         """
-        Aplicar filtros a la consulta
+        Obtener valor por clave
         
         Args:
-            **filters: Pares campo=valor para filtrar
+            key: Clave a buscar
+            default: Valor por defecto si no existe
             
         Returns:
-            Self para method chaining
+            Valor de la clave o default
         """
-        self._filters.update(filters)
-        return self
+        return self._data.get(key, default)
     
-    def limit(self, limit: int) -> 'Request':
-        """
-        Limitar número de resultados
-        
-        Args:
-            limit: Número máximo de resultados
-            
-        Returns:
-            Self para method chaining
-        """
-        self._limit = limit
-        return self
+    def get_str(self, key: str, default: str = "") -> str:
+        """Obtener valor como string"""
+        value = self.get(key, default)
+        return str(value) if value is not None else default
     
-    def offset(self, offset: int) -> 'Request':
-        """
-        Saltar un número de resultados (para paginación)
-        
-        Args:
-            offset: Número de resultados 
-            
-        Returns:
-            Self para method chaining
-        """
-        self._offset = offset
-        return self
-    
-    def order_by(self, field: str, ascending: bool = True) -> 'Request':
-        """
-        Ordenar resultados por campo
-        
-        Args:
-            field: Campo por el cual ordenar
-            ascending: True para orden ascendente, False para descendente
-            
-        Returns:
-            Self para method chaining
-        """
-        self._order_by = field
-        self._ascending = ascending
-        return self
-    
-    def all(self) -> List[FileHandler]:
-        """
-        Obtener todos los objetos que coincidan con los filtros
-        
-        Returns:
-            Lista de objetos del modelo
-        """
-        objects = self.model_class.load_all()
-        
-        # Aplicar filtros
-        if self._filters:
-            objects = self._apply_filters(objects)
-        
-        # Aplicar ordenamiento
-        if self._order_by:
-            objects = self._apply_ordering(objects)
-        
-        # Aplicar paginación
-        if self._offset > 0:
-            objects = objects[self._offset:]
-        
-        if self._limit:
-            objects = objects[:self._limit]
-        
-        return objects
-    
-    def first(self) -> Optional[FileHandler]:
-        """
-        Obtener el primer objeto que coincida con los filtros
-        
-        Returns:
-            Primer objeto o None si no hay resultados
-        """
-        results = self.limit(1).all()
-        return results[0] if results else None
-    
-    def count(self) -> int:
-        """
-        Contar número de objetos que coinciden con los filtros
-        
-        Returns:
-            Número de objetos
-        """
-        objects = self.model_class.load_all()
-        if self._filters:
-            objects = self._apply_filters(objects)
-        return len(objects)
-    
-    def get(self, object_id: str) -> Optional[FileHandler]:
-        """
-        Obtener un objeto por su ID
-        
-        Args:
-            object_id: ID del objeto a buscar
-            
-        Returns:
-            Objeto encontrado o None
-        """
-        return self.model_class.find_by_id(self.model_class.load_all(), object_id)
-    
-    def create(self, **data) -> FileHandler:
-        """
-        Crear un nuevo objeto
-        
-        Args:
-            **data: Datos para el nuevo objeto
-            
-        Returns:
-            Nuevo objeto creado
-        """
-        # Generar ID automáticamente si no se proporciona
-        if 'id' not in data or not data['id']:
-            existing_objects = self.model_class.all()
-            new_id = self._generate_new_id(existing_objects)
-            data['id'] = new_id
-        
-        new_object = self.model_class(**data)
-        objects = self.model_class.load_all()
-        objects.append(new_object)
-        self.model_class.save_all(objects)
-        
-        return new_object
-    
-    def update(self, object_id: str, **data) -> Optional[FileHandler]:
-        """
-        Actualizar un objeto existente
-        
-        Args:
-            object_id: ID del objeto a actualizar
-            **data: Datos a actualizar
-            
-        Returns:
-            Objeto actualizado o None si no se encontró
-        """
-        objects = self.model_class.load_all()
-        target_object = None
-        target_index = -1
-        
-        for i, obj in enumerate(objects):
-            if str(obj.id) == str(object_id):
-                target_object = obj
-                target_index = i
-                break
-        
-        if target_object is None:
-            return None
-        
-        # Actualizar atributos
-        for key, value in data.items():
-            if hasattr(target_object, key):
-                setattr(target_object, key, value)
-        
-        objects[target_index] = target_object
-        self.model_class.save_all(objects)
-        
-        return target_object
-    
-    def delete(self, object_id: str) -> bool:
-        """
-        Eliminar un objeto
-        
-        Args:
-            object_id: ID del objeto a eliminar
-            
-        Returns:
-            True si se eliminó, False si no se encontró
-        """
-        objects = self.model_class.load_all()
-        initial_count = len(objects)
-        
-        objects = [obj for obj in objects if str(obj.id) != str(object_id)]
-        
-        if len(objects) < initial_count:
-            self.model_class.save_all(objects)
-            return True
-        return False
-    
-    def _apply_filters(self, objects: List[FileHandler]) -> List[FileHandler]:
-        """Aplicar filtros a la lista de objetos"""
-        filtered = objects.copy()
-        
-        for field, value in self._filters.items():
-            if hasattr(objects[0], field):
-                filtered = [obj for obj in filtered if getattr(obj, field) == value]
-        
-        return filtered
-    
-    def _apply_ordering(self, objects: List[FileHandler]) -> List[FileHandler]:
-        """Aplicar ordenamiento a la lista de objetos"""
-        if not objects or not hasattr(objects[0], self._order_by):
-            return objects
-        
+    def get_int(self, key: str, default: int = 0) -> int:
+        """Obtener valor como integer"""
         try:
-            sorted_objects = sorted(
-                objects, 
-                key=lambda x: getattr(x, self._order_by),
-                reverse=not self._ascending
-            )
-            return sorted_objects
-        except (TypeError, AttributeError):
-            # Si hay error en el ordenamiento, devolver sin ordenar
-            return objects
+            value = self.get(key, default)
+            return int(value) if value is not None else default
+        except (ValueError, TypeError):
+            return default
     
-    def _generate_new_id(self, objects: List[FileHandler]) -> str:
-        """Generar un nuevo ID único"""
-        if not objects:
-            return "1"
+    def get_float(self, key: str, default: float = 0.0) -> float:
+        """Obtener valor como float"""
+        try:
+            value = self.get(key, default)
+            return float(value) if value is not None else default
+        except (ValueError, TypeError):
+            return default
+    
+    def get_bool(self, key: str, default: bool = False) -> bool:
+        """Obtener valor como boolean"""
+        value = self.get(key, default)
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in ('true', '1', 'yes', 'si', 'sí')
+        return bool(value)
+    
+    def get_list(self, key: str, default: List = None) -> List:
+        """Obtener valor como lista"""
+        if default is None:
+            default = []
+        value = self.get(key, default)
+        return value if isinstance(value, list) else default
+    
+    def get_dict(self, key: str, default: Dict = None) -> Dict:
+        """Obtener valor como diccionario"""
+        if default is None:
+            default = {}
+        value = self.get(key, default)
+        return value if isinstance(value, dict) else default
+    
+    def require(self, *fields: str) -> 'Request':
+        """
+        Validar que los campos requeridos estén presentes
         
-        numeric_ids = []
-        for obj in objects:
+        Args:
+            *fields: Campos requeridos
+            
+        Returns:
+            Self para method chaining
+        """
+        for field in fields:
+            if field not in self._data or self._data[field] in (None, ""):
+                self._add_error(field, f"El campo '{field}' es requerido")
+        return self
+    
+    def validate_email(self, field: str) -> 'Request':
+        """
+        Validar que un campo sea un email válido
+        
+        Args:
+            field: Campo a validar
+            
+        Returns:
+            Self para method chaining
+        """
+        value = self.get(field)
+        if value and '@' not in str(value):
+            self._add_error(field, f"El campo '{field}' debe ser un email válido")
+        return self
+    
+    def validate_min_length(self, field: str, min_length: int) -> 'Request':
+        """
+        Validar longitud mínima de un campo string
+        
+        Args:
+            field: Campo a validar
+            min_length: Longitud mínima requerida
+            
+        Returns:
+            Self para method chaining
+        """
+        value = self.get_str(field)
+        if value and len(value) < min_length:
+            self._add_error(field, f"El campo '{field}' debe tener al menos {min_length} caracteres")
+        return self
+    
+    def validate_max_length(self, field: str, max_length: int) -> 'Request':
+        """
+        Validar longitud máxima de un campo string
+        
+        Args:
+            field: Campo a validar
+            max_length: Longitud máxima permitida
+            
+        Returns:
+            Self para method chaining
+        """
+        value = self.get_str(field)
+        if value and len(value) > max_length:
+            self._add_error(field, f"El campo '{field}' no puede tener más de {max_length} caracteres")
+        return self
+    
+    def validate_numeric(self, field: str) -> 'Request':
+        """
+        Validar que un campo sea numérico
+        
+        Args:
+            field: Campo a validar
+            
+        Returns:
+            Self para method chaining
+        """
+        value = self.get(field)
+        if value and not str(value).replace('.', '').isdigit():
+            self._add_error(field, f"El campo '{field}' debe ser numérico")
+        return self
+    
+    def validate_phone(self, field: str) -> 'Request':
+        """
+        Validar que un campo sea un teléfono válido
+        
+        Args:
+            field: Campo a validar
+            
+        Returns:
+            Self para method chaining
+        """
+        value = self.get_str(field)
+        if value and not value.replace(' ', '').replace('-', '').isdigit():
+            self._add_error(field, f"El campo '{field}' debe ser un teléfono válido")
+        return self
+    
+    def validate_date(self, field: str, format: str = "%Y-%m-%d") -> 'Request':
+        """
+        Validar que un campo sea una fecha válida
+        
+        Args:
+            field: Campo a validar
+            format: Formato de fecha esperado
+            
+        Returns:
+            Self para method chaining
+        """
+        value = self.get_str(field)
+        if value:
             try:
-                if hasattr(obj, 'id') and obj.id:
-                    numeric_ids.append(int(obj.id))
-            except (ValueError, TypeError):
-                continue
-        
-        return str(max(numeric_ids) + 1) if numeric_ids else "1"
+                datetime.strptime(value, format)
+            except ValueError:
+                self._add_error(field, f"El campo '{field}' debe ser una fecha válida en formato {format}")
+        return self
     
-    def exists(self, **filters) -> bool:
+    def validate_time(self, field: str, format: str = "%H:%M") -> 'Request':
         """
-        Verificar si existe al menos un objeto que coincida con los filtros
+        Validar que un campo sea una hora válida
         
         Args:
-            **filters: Filtros a aplicar
+            field: Campo a validar
+            format: Formato de hora esperado
             
         Returns:
-            True si existe al menos un objeto, False en caso contrario
+            Self para method chaining
         """
-        return self.filter(**filters).count() > 0
+        value = self.get_str(field)
+        if value:
+            try:
+                datetime.strptime(value, format)
+            except ValueError:
+                self._add_error(field, f"El campo '{field}' debe ser una hora válida en formato {format}")
+        return self
     
-    def bulk_create(self, data_list: List[Dict[str, Any]]) -> List[FileHandler]:
+    def validate_custom(self, field: str, validator: callable, message: str = None) -> 'Request':
         """
-        Crear múltiples objetos de una vez
+        Validación personalizada
         
         Args:
-            data_list: Lista de diccionarios con datos para crear objetos
+            field: Campo a validar
+            validator: Función de validación que retorna bool
+            message: Mensaje de error personalizado
             
         Returns:
-            Lista de objetos creados
+            Self para method chaining
         """
-        objects = self.model_class.load_all()
-        new_objects = []
-        
-        for data in data_list:
-            if 'id' not in data or not data['id']:
-                new_id = self._generate_new_id(objects + new_objects)
-                data['id'] = new_id
-            
-            new_object = self.model_class(**data)
-            new_objects.append(new_object)
-        
-        all_objects = objects + new_objects
-        self.model_class.save_all(all_objects)
-        
-        return new_objects
+        value = self.get(field)
+        if value and not validator(value):
+            error_msg = message or f"El campo '{field}' no es válido"
+            self._add_error(field, error_msg)
+        return self
     
-    def bulk_update(self, updates: Dict[str, Dict[str, Any]]) -> int:
-        """
-        Actualizar múltiples objetos de una vez
+    """ def add_data(self, **kwargs) -> 'Request':
+        Agregar datos adicionales a la request
         
         Args:
-            updates: Diccionario con {object_id: {campo: nuevo_valor}}
+            **kwargs: Datos a agregar
             
         Returns:
-            Número de objetos actualizados
+            Self para method chaining
+
+        self._data.update(kwargs)
+        return self """
+    
+    def clean(self) -> 'Request':
         """
-        objects = self.model_class.load_all()
-        updated_count = 0
+        Limpiar y preparar datos validados
         
-        for i, obj in enumerate(objects):
-            obj_id = str(obj.id)
-            if obj_id in updates:
-                for field, value in updates[obj_id].items():
-                    if hasattr(obj, field):
-                        setattr(obj, field, value)
-                        updated_count += 1
-                objects[i] = obj
-        
-        if updated_count > 0:
-            self.model_class.save_all(objects)
-        
-        return updated_count
+        Returns:
+            Self para method chaining
+        """
+        if self.is_valid():
+            self._validated_data = self._data.copy()
+        return self
+    
+    def _add_error(self, field: str, message: str):
+        """Agregar error de validación"""
+        self._errors[field] = message
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convertir a diccionario (solo datos válidos)"""
+        return self.validated_data if self.is_valid() else self.data
+    
+    def __str__(self) -> str:
+        return f"Request(data={self._data}, errors={self._errors}, valid={self.is_valid()})"
+    
+    def __getitem__(self, key: str) -> Any:
+        return self.get(key)
+    
+    def __contains__(self, key: str) -> bool:
+        return key in self._data

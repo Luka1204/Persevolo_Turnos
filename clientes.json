@@ -1,50 +1,34 @@
 [
     {
         "id": "1",
-        "nombre": "Juan",
-        "apellido": "P\u00e9rez",
-        "dni": "12345678",
-        "email": "juan.perez@example.com",
-        "telefono": "555-1234"
+        "nombre": "Luka",
+        "apellido": "Reyes",
+        "dni": "",
+        "email": "lukareyes04@gmail.com",
+        "telefono": "1122882227"
     },
     {
         "id": "2",
-        "nombre": "Juan",
-        "apellido": "P\u00e9rez",
-        "dni": "12345678",
-        "email": "juan.perez@example.com",
-        "telefono": "555-1234"
+        "nombre": "Emiliano",
+        "apellido": "Bili",
+        "dni": "",
+        "email": "abc.gob.ar@edu.gov.ar",
+        "telefono": "1122882227"
     },
     {
         "id": "3",
-        "nombre": "Juan",
-        "apellido": "P\u00e9rez",
-        "dni": "12345678",
-        "email": "juan.perez@example.com",
-        "telefono": "555-1234"
+        "nombre": "Luka",
+        "apellido": "Perez",
+        "dni": "",
+        "email": "lukaperez@gmail.com",
+        "telefono": "1122882227"
     },
     {
         "id": "4",
-        "nombre": "Juan",
-        "apellido": "P\u00e9rez",
-        "dni": "12345678",
-        "email": "juan.perez@example.com",
-        "telefono": "555-1234"
-    },
-    {
-        "id": "5",
-        "nombre": "Juan",
-        "apellido": "P\u00e9rez",
-        "dni": "12345678",
-        "email": "juan.perez@example.com",
-        "telefono": "555-1234"
-    },
-    {
-        "id": "6",
-        "nombre": "Juan",
-        "apellido": "P\u00e9rez",
-        "dni": "12345678",
-        "email": "juan.perez@example.com",
-        "telefono": "555-1234"
+        "nombre": "Julian",
+        "apellido": "Rodriguez",
+        "dni": "45688609",
+        "email": "losi@gmail.com",
+        "telefono": "1122882227"
     }
 ]

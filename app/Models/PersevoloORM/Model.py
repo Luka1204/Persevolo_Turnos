@@ -41,6 +41,20 @@ class Model(ABC,FileHandler):
     def __hash__(self): #Generar un hash para la instancia del modelo
         return hash(tuple(getattr(self, _field_) for _field_ in self._fields))
     
+
+    @classmethod
+    def all(cls): #Obtener todas las instancias del modelo desde el archivo CSV
+        instancias = []
+        nom_archivo = cls.get_filename()
+        if not os.path.exists(nom_archivo):
+            return instancias
+
+        with open(nom_archivo, mode='r', newline='', encoding='utf-8') as archivo:
+            reader = csv.DictReader(archivo)
+            for row in reader:
+                data = {field: row[field] for field in cls.get_fields()}
+                instancias.append(cls(**data))
+        return instancias
     def _get_default_value(self, field):
         """Obtener valor por defecto según el tipo de campo"""
         if field == 'id':
@@ -56,7 +70,7 @@ class Model(ABC,FileHandler):
     
     
     def save(self): #Guardar la instancia del modelo en el archivo CSV
-        self.id = self.generar_id_unico(self.__class__.all())
+        self.id = self.generar_id_unico()
         nom_archivo = self.get_filename()
         archivo_bool = os.path.isfile(nom_archivo)
         with open(nom_archivo, mode='a', newline='', encoding='utf-8') as file:
@@ -103,12 +117,19 @@ class Model(ABC,FileHandler):
     @classmethod
     def get_fields(cls): #Obtener los campos del modelo
         return cls._fields
-    
-    @classmethod   
-    def generar_id_unico(self, objetos):
+
+    def where(self, **kwargs): #Filtrar instancias del modelo según los criterios dados
+        instancias = self.all()
+        resultados = []
+        for instancia in instancias:
+            if all(getattr(instancia, key) == value for key, value in kwargs.items() if value):
+                resultados.append(instancia)
+        return resultados
+
+    @classmethod
+    def generar_id_unico(self):
         """Generar un ID único para un nuevo objeto"""
-        if not objetos:
-            return "1"
+        objetos = self.all()
         
         # Usar el método find de la clase base
         ids = []
@@ -120,5 +141,16 @@ class Model(ABC,FileHandler):
                     continue
         
         return str(max(ids) + 1) if ids else "1"
+    
+    def update(self):
+        print("self model: ",self)
+        if not hasattr(self, 'id') or not self.id:
+            raise ValueError("La instancia debe tener un ID para actualizarse.")
+        
+        """ _________________
+            Actualización CSV  
+        """
+        self.__class__.update_csv(self, **self.to_dict())
+        """ self.update_csv() """
     
 

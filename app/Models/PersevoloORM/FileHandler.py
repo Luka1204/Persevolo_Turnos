@@ -33,19 +33,7 @@ class FileHandler():
     def from_dict(cls,data): #Crear una instancia del modelo a partir de un diccionario
         return cls(**data)
     
-    @classmethod
-    def all(cls): #Obtener todas las instancias del modelo desde el archivo CSV
-        instancias = []
-        nom_archivo = cls.get_filename()
-        if not os.path.exists(nom_archivo):
-            return instancias
-
-        with open(nom_archivo, mode='r', newline='', encoding='utf-8') as archivo:
-            reader = csv.DictReader(archivo)
-            for row in reader:
-                data = {field: row[field] for field in cls.get_fields()}
-                instancias.append(cls(**data))
-        return instancias
+    
     
     @classmethod
     def delete_all(cls): #Eliminar todas las instancias del modelo
@@ -66,6 +54,23 @@ class FileHandler():
             writer.writeheader()
             for obj in objects:
                 writer.writerow(obj.to_dict())
-            writer.flush()
+            file.flush()
             os.fsync(file.fileno())
+        cls.convert_to_json(f"{nom_archivo.rsplit('.',1)[0]}.json")
         print(f"Se guardaron todas las instancias de {cls.__name__} en {nom_archivo}")
+
+    @classmethod
+    def update_csv(self,instance, **kwargs):
+        print("self: ", self)
+        csv = self.all()
+        print(csv)
+        for obj in csv:
+            """ Busca el objeto por ID """
+
+            if obj.id == instance.id:
+                for key, value in kwargs.items():
+                        """ Actualiza el valor """
+                        setattr(obj, key, value)
+                break
+        """ Guarda un nuevo CSV actualizado """
+        return self.save_all(csv)

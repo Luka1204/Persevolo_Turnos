@@ -46,10 +46,12 @@ class Model(ABC,FileHandler):
     def all(cls): #Obtener todas las instancias del modelo desde el archivo CSV
         instancias = []
         nom_archivo = cls.get_filename()
-        if not os.path.exists(nom_archivo):
+        path = 'DB/'+nom_archivo
+        print("nom_archivo en all(): ", nom_archivo)
+        if not os.path.exists(path):
             return instancias
 
-        with open(nom_archivo, mode='r', newline='', encoding='utf-8') as archivo:
+        with open(path, mode='r', newline='', encoding='utf-8') as archivo:
             reader = csv.DictReader(archivo)
             for row in reader:
                 data = {field: row[field] for field in cls.get_fields()}
@@ -72,8 +74,9 @@ class Model(ABC,FileHandler):
     def save(self): #Guardar la instancia del modelo en el archivo CSV
         self.id = self.generar_id_unico()
         nom_archivo = self.get_filename()
-        archivo_bool = os.path.isfile(nom_archivo)
-        with open(nom_archivo, mode='a', newline='', encoding='utf-8') as file:
+        path = 'DB/'+nom_archivo
+        archivo_bool = os.path.isfile(path)
+        with open(path, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=self.get_fields())
             if not archivo_bool:
                 writer.writeheader()
@@ -81,6 +84,7 @@ class Model(ABC,FileHandler):
             file.flush()
             os.fsync(file.fileno())
             print(f"Se guardó la instancia de {self.__class__.__name__} en {nom_archivo}")
+            self.convert_to_json(f"{nom_archivo.rsplit('.',1)[0]}.json")
 
 
     @classmethod
@@ -152,5 +156,17 @@ class Model(ABC,FileHandler):
         """
         self.__class__.update_csv(self, **self.to_dict())
         """ self.update_csv() """
-    
 
+    def delete(self):
+        """ Eliminar la instancia actual del modelo """
+        print("self: ",self)
+        if not hasattr(self, 'id') or not self.id:
+            raise ValueError("La instancia debe tener un ID para eliminarse.")
+        
+        deleted_count = self.__class__.delete_by(id=self.id)
+        return deleted_count
+    
+    def delete_all(self):
+        """ Eliminar todas las instancias del modelo """
+        deleted_count = self.delete_by()
+        return deleted_count

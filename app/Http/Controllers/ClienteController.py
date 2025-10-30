@@ -254,7 +254,7 @@ class ClienteController:
             print("Advertencia: Esta acción eliminará todos los clientes. ¿Desea continuar? (s/n)")
             confirmar = input().lower()
             if confirmar == 's': 
-                Cliente.delete_all()
+                Cliente.delete_all(Cliente)
             
             print("Se eliminaron todos los clientes")
         

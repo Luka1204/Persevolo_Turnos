@@ -37,8 +37,10 @@ class MenuView:
             elif opcion == "4":
                 self.menu_atenciones()
             elif opcion == "5":
-                self.menu_administracion()
+                self.menu_servicios()
             elif opcion == "6":
+                self.menu_administracion()
+            elif opcion == "7":
                 break
             else:
                 print("Opción inválida")
@@ -80,7 +82,7 @@ class MenuView:
         elif opcion == "3":
             self.cliente_controller.solicitar_actualizar_cliente()
         elif opcion == "4":
-            self.cliente_controller.eliminar_cliente()
+            self.cliente_controller.solicitar_eliminar_cliente()
         elif opcion == "5":
             return
         else:

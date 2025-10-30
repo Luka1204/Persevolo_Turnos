@@ -13,7 +13,8 @@ class FileHandler():
     def convert_to_json(cls,json_nom): #Convertir todas las instancias del modelo a un archivo JSON
         objects = cls.all()
         data = [obj.to_dict() for obj in objects]
-        with open(json_nom, mode='w', encoding='utf-8') as json_obj:
+        path = 'DB/'+json_nom
+        with open(path, mode='w', encoding='utf-8') as json_obj:
             json.dump(data, json_obj, indent=4)
             print(f"Se guardaron las instancias de {cls.__name__} en el archivo JSON {json_nom}")
 
@@ -49,7 +50,7 @@ class FileHandler():
     @classmethod
     def save_all(cls,objects): #Guardar todas las instancias del modelo en el archivo
         nom_archivo = cls.get_filename()
-        with open(nom_archivo, mode='w', newline='', encoding='utf-8') as file:
+        with open('./DB/'+nom_archivo, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=cls.get_fields())
             writer.writeheader()
             for obj in objects:

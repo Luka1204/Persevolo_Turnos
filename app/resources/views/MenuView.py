@@ -141,13 +141,14 @@ class MenuView:
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            self.professional_controller.registrar_profesional()
+            self.professional_controller.solicitar_registro_profesional()
         elif opcion == "2":
             self.professional_controller.solicitar_buscar_profesional()
         elif opcion == "3":
             self.professional_controller.actualizar_profesional()
         elif opcion == "4":
-            self.professional_controller.eliminar_profesional()
+            dni = input('Ingrese DNI del profesional: ')
+            self.professional_controller.eliminar_profesional(dni)
         elif opcion == "5":
             self.professional_controller.buscar_turnos_por_profesional()
         elif opcion == "6": 

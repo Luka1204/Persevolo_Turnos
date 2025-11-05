@@ -1,0 +1,16 @@
+[
+    {
+        "id": "1",
+        "nombre": "EMMA",
+        "apellido": "BUTO",
+        "dni": "384843",
+        "cuil": "128282"
+    },
+    {
+        "id": "3",
+        "nombre": "Rosa",
+        "apellido": "Melano",
+        "dni": "2939333",
+        "cuil": "26062011"
+    }
+]

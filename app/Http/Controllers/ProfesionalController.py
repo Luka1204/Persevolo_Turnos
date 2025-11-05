@@ -12,12 +12,12 @@ class ProfesionalController:
             Tuple (success, data_or_error)
         """
         # Validaciones
-        (request.require('nombre', 'apellido', 'dni','cuil','atenciones')
+        """(request.require('nombre', 'apellido', 'dni','cuil')
            .validate_string('nombre', min_length=2, max_length=100)
            .validate_string('apellido', min_length=2, max_length=100)
            .validate_string('dni', min_length=2, max_length=100)
            .validate_string('cuil', min_length=2, max_length=100))
-        
+        """
         if request.has_errors():
             return False, request.errors
 
@@ -36,14 +36,33 @@ class ProfesionalController:
                 nombre=data['nombre'],
                 apellido=data['apellido'],
                 dni=data['dni'],
-                cuil=data['cuil'],
-                atenciones=data['atenciones']
+                cuil=data['cuil']
             )
 
-            profesionales.append(nuevo_profesional)
-            Profesional.save_all(profesionales)
+            #profesionales.append(nuevo_profesional)
+            #Profesional.save_all(profesionales)
+            nuevo_profesional.save()
 
             return True, nuevo_profesional
-
+            #modificar profesional
         except Exception as e:
             return False, {"error": f"Error al registrar profesional: {str(e)}"}
+        
+    def eliminar_profesional(self, dni_p):
+        profesional = Profesional.where(Profesional, dni=dni_p)[0]
+        a = profesional.delete()
+        print(a)
+
+    def solicitar_registro_profesional(self):
+        nombre = input('Ingrese nombre del profesional: ')
+        apellido = input('Ingrese apellido del profesional: ')
+        dni = input('Ingrese DNI del profesional: ')
+        cuil = input('Ingrese CUIL del profesional ')
+
+        s = Request({
+            "nombre":nombre,
+            "apellido":apellido,
+            "dni": dni,
+            "cuil":cuil
+        })
+        return self.registrar_profesional(s)

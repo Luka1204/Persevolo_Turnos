@@ -12,5 +12,12 @@
         "apellido": "Melano",
         "dni": "2939333",
         "cuil": "26062011"
+    },
+    {
+        "id": "4",
+        "nombre": "juan",
+        "apellido": "puto",
+        "dni": "33223322",
+        "cuil": "2232323"
     }
 ]

@@ -101,13 +101,13 @@ class MenuView:
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            self.atencion_controller.registrar_atencion()
+            self.atencion_controller.solicitar_guardar_atencion()
         elif opcion == "2":
             self.atencion_controller.buscar_atencion()
         elif opcion == "3":
-            self.atencion_controller.editar_atencion()
+            self.atencion_controller.solicitar_modificar_atencion()
         elif opcion == "4":
-            self.atencion_controller.eliminar_atencion()
+            self.atencion_controller.solicitar_eliminar_atencion()
         elif opcion == "5":
             return
         else:

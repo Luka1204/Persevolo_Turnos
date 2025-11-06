@@ -5,6 +5,9 @@ class ServiciosController:
     def __init__(self):
         pass
     
+    
+    def get_servicios(self):
+        return Servicio.all()
     def guardar_servicio(self, request: Request):
         
         (request.require('nombre','duracion','precio'))
@@ -16,7 +19,7 @@ class ServiciosController:
             
             data = request.data
             # Verificar que no exista un profesional con el mismo nombre y apellido
-            servicios = Servicio.all()
+            servicios = self.get_servicios()
             existe = any((s.nombre == data['nombre'] and s.duracion == data['duracion'] and s.precio == data ['precio']) for s in servicios)
             if existe:
                 return False, {"error": "Ya existe un Servicio con esas características"}
@@ -71,7 +74,7 @@ class ServiciosController:
                 return False, {"error": "Servicio no encontrado"}
             
             servicio.update()
-            return True, Servicio.all()
+            return True, self.get_servicios()
             
         except Exception as e:
             return False, {"error": f"Error al actualizar servicio: {str(e)}"}

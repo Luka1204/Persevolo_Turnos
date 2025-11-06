@@ -47,12 +47,11 @@ class Model(ABC,FileHandler):
         instancias = []
         nom_archivo = cls.get_filename()
         path = 'DB/'+nom_archivo
-        print("nom_archivo en all(): ", nom_archivo)
         if not os.path.exists(path):
             return instancias
 
         with open(path, mode='r', newline='', encoding='utf-8') as archivo:
-            reader = csv.DictReader(archivo)
+            reader = csv.DictReader(archivo, skipinitialspace=True)
             for row in reader:
                 data = {field: row[field] for field in cls.get_fields()}
                 instancias.append(cls(**data))
@@ -125,6 +124,7 @@ class Model(ABC,FileHandler):
     def where(self, **kwargs): #Filtrar instancias del modelo según los criterios dados
         instancias = self.all()
         resultados = []
+        print(kwargs.items())
         for instancia in instancias:
             if all(getattr(instancia, key) == value for key, value in kwargs.items() if value):
                 resultados.append(instancia)

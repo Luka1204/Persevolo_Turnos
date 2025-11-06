@@ -1,1 +1,8 @@
-[]
+[
+    {
+        "id": "1",
+        "nombre": "CORTE",
+        "duracion": "60",
+        "precio": "13000.0"
+    }
+]

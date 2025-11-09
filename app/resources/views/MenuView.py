@@ -4,7 +4,6 @@ from app.Http.Controllers.TurnoController import TurnoController
 from app.Http.Controllers.ProfesionalController import ProfesionalController
 from app.Http.Controllers.AtencionController import AtencionController
 from app.Http.Controllers.ServiciosController import ServiciosController
-from app.Http.Controllers.LiquidacionController import LiquidacionController
 
 
 
@@ -14,7 +13,6 @@ class MenuView:
         self.turno_controller = TurnoController()
         self.atencion_controller = AtencionController()
         self.professional_controller = ProfesionalController()
-        self.liquidacion_controller = LiquidacionController()
         self.servicios_controller = ServiciosController()
             
     def mostrar_menu_principal(self):
@@ -143,7 +141,7 @@ class MenuView:
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            self.professional_controller.solicitar_registro_profesional()
+            self.professional_controller.solicitar_guardar_profesional()
         elif opcion == "2":
             self.professional_controller.solicitar_buscar_profesional()
         elif opcion == "3":

@@ -5,12 +5,6 @@ class ClienteController:
     def guardar_cliente(self, request: Request):
         """
         Registrar nuevo cliente con validación
-        
-        Args:
-            request: Objeto Request con datos del cliente
-            
-        Returns:
-            Tuple (success, data_or_error)
         """
         # Validar datos requeridos
         request.require('nombre','dni', 'telefono', 'email')
@@ -77,12 +71,6 @@ class ClienteController:
     def buscar_cliente(self, request: Request):
         """
         Buscar cliente con filtros
-        
-        Args:
-            request: Objeto Request con criterios de búsqueda
-            
-        Returns:
-            Tuple (success, data_or_error)
         """
         try:
             clientes = Cliente.all()

@@ -3,6 +3,7 @@ from app.Http.Controllers.ClienteController import ClienteController
 from app.Http.Controllers.TurnoController import TurnoController
 from app.Http.Controllers.ProfesionalController import ProfesionalController
 from app.Http.Controllers.AtencionController import AtencionController
+from app.Http.Controllers.ServiciosController import ServiciosController
 from app.Http.Controllers.LiquidacionController import LiquidacionController
 
 
@@ -14,7 +15,8 @@ class MenuView:
         self.atencion_controller = AtencionController()
         self.professional_controller = ProfesionalController()
         self.liquidacion_controller = LiquidacionController()
-    
+        self.servicios_controller = ServiciosController()
+            
     def mostrar_menu_principal(self):
         while True:
             print("\n=== SISTEMA DE TURNOS ===")
@@ -48,19 +50,19 @@ class MenuView:
     def menu_servicios(self):
         print("=== MENÚ SERVICIOS ===")
         print("1.) Registrar servicio")
-        print("3.) Actualizar servicio")
-        print("4.) Eliminar servicio")
-        print("5.) Volver al menú principal")
+        print("2.) Actualizar servicio")
+        print("3.) Eliminar servicio")
+        print("4.) Volver al menú principal")
 
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            self.cliente_controller.registrar_cliente()
+            self.servicios_controller.solicitar_guardar_servicio()
         elif opcion == "2":
-            self.cliente_controller.solicitar_buscar_cliente()
+            self.servicios_controller.solicitar_modificar_servicio()
         elif opcion == "3":
-            self.cliente_controller.actualizar_cliente()
-        elif opcion == "3":
+            self.servicios_controller.solicitar_eliminar_servicio()
+        elif opcion == "4":
             return
         else:
             print("Opción inválida")
@@ -99,13 +101,13 @@ class MenuView:
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            self.atencion_controller.registrar_atencion()
+            self.atencion_controller.solicitar_guardar_atencion()
         elif opcion == "2":
             self.atencion_controller.buscar_atencion()
         elif opcion == "3":
-            self.atencion_controller.editar_atencion()
+            self.atencion_controller.solicitar_modificar_atencion()
         elif opcion == "4":
-            self.atencion_controller.eliminar_atencion()
+            self.atencion_controller.solicitar_eliminar_atencion()
         elif opcion == "5":
             return
         else:

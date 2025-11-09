@@ -10,5 +10,4 @@ class ProfesionalController:
         pass
 
     def juanputo(self):
-
         return True

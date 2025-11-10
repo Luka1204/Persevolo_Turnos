@@ -30,7 +30,8 @@ class Validator:
             return result
         return None  # No hay validador para este campo
 
-    def validate_atenciones
+    def validate_atenciones(self, val):
+        return len(val) > 0
     def validate_nombre(self, value):
         if not self._is_non_empty_string(value):
             return "El nombre no puede estar vacío"

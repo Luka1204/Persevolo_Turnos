@@ -39,13 +39,14 @@ class FileHandler():
     @classmethod
     def delete_all(cls): #Eliminar todas las instancias del modelo
         nom_archivo = cls.get_filename()
-        if os.path.exists(nom_archivo):
-            os.remove(nom_archivo)
+        path = './DB/'+nom_archivo
+        if os.path.exists(path):
+            os.remove(path)
             print(f"Se eliminaron todas las instancias de {cls.__name__} al eliminar {nom_archivo}")
+            return 1
         else:
-            print(f"No se encontró el archivo para {cls.__name__}, nada que eliminar.")
+            print(f"No se encontró el archivo {nom_archivo} en ./DB, nada que eliminar.")
             return 0
-        return 1
     
     @classmethod
     def save_all(cls,objects): #Guardar todas las instancias del modelo en el archivo
@@ -54,7 +55,11 @@ class FileHandler():
             writer = csv.DictWriter(file, fieldnames=cls.get_fields())
             writer.writeheader()
             for obj in objects:
-                writer.writerow(obj.to_dict())
+                # Escribir valores serializados apropiadamente (listas/dicts -> json strings)
+                if hasattr(obj, 'to_csv_dict'):
+                    writer.writerow(obj.to_csv_dict())
+                else:
+                    writer.writerow(obj.to_dict())
             file.flush()
             os.fsync(file.fileno())
         cls.convert_to_json(f"{nom_archivo.rsplit('.',1)[0]}.json")

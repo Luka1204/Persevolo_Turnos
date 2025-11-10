@@ -2,26 +2,17 @@ from app.Models.PersevoloORM.Request.Request import Request
 from app.Models.Cliente import Cliente
 
 class ClienteController:
+    def __init__(self):
+        pass
+
     def guardar_cliente(self, request: Request):
-        """
-        Registrar nuevo cliente con validación
-        """
         # Validar datos requeridos
         request.require('nombre','dni', 'telefono', 'email')
-        
-        # Validaciones específicas
-        (request.validate_min_length('nombre', 2)
-           .validate_max_length('nombre', 100)
-           .validate_phone('telefono')
-           .validate_email('email')
-           .validate_min_length('telefono', 8))
-        
+         
         if request.has_errors():
-            return False, request.errors
+             return False, request.errors
         
-        # Limpiar y preparar datos
-        request.clean()
-        data = request.validated_data
+        data = request.data
         
         try:
             # Verificar que no exista cliente con mismo email
@@ -39,13 +30,11 @@ class ClienteController:
                 email=data['email'],     
             )
             
-            # Guardar
-            nuevo_cliente.save()
+            return nuevo_cliente.save()
             
-            return True, nuevo_cliente
-            
+            #return True, nuevo_cliente
         except Exception as e:
-            return False, {"error": f"Error al registrar cliente: {str(e)}"}
+            return False
     
     def actualizar_cliente(self, request: Request):
 
@@ -62,16 +51,13 @@ class ClienteController:
             if not cliente:
                 return False, {"error": "Cliente no encontrado"}
             
-            cliente.update()
-            return True, Cliente.all()
+            return cliente.update()
             
         except Exception as e:
             return False, {"error": f"Error al actualizar cliente: {str(e)}"}
     
     def buscar_cliente(self, request: Request):
-        """
-        Buscar cliente con filtros
-        """
+        """ Buscar cliente con filtros"""
         try:
             clientes = Cliente.all()
             resultados = []
@@ -125,44 +111,11 @@ class ClienteController:
         })
         
         # Llamar al controlador
-        success, result = self.guardar_cliente(request)
+        success = self.guardar_cliente(request)
         
         if success:
-            print(f"Cliente registrado: {result}")
-        else:
-            print("Errores:")
-            for campo, error in result.items():
-                print(f"   - {campo}: {error}")
-    
-    def solicitar_turno(self):
-        print("\n--- SOLICITAR TURNO ---")
-        
-        # Recoger datos
-        cliente_id = input("ID del cliente: ")
-        profesional_id = input("ID del profesional: ")
-        fecha = input("Fecha (YYYY-MM-DD): ")
-        hora = input("Hora (HH:MM): ")
-        servicio = input("Servicio: ")
-        
-        # Crear Request
-        request = Request({
-            'cliente_id': cliente_id,
-            'profesional_id': profesional_id,
-            'fecha': fecha,
-            'hora': hora,
-            'servicio': servicio
-        })
-        
-        # Llamar al controlador
-        success, result = self.turno_controller.solicitar_turno(request)
-        
-        if success:
-            print(f"Turno solicitado: {result}")
-        else:
-            print("Errores:")
-            for campo, error in result.items():
-                print(f"   - {campo}: {error}")
-
+            print(f"Cliente registrado!")
+            
     def solicitar_buscar_cliente(self):
         print("\n--- BUSCAR CLIENTE ---")
         
@@ -188,28 +141,16 @@ class ClienteController:
                 print("Clientes encontrados:")
                 for cliente in result:
                     print(f"  - {cliente}")
+                return result
             else:
                 print("No se encontraron clientes")
         else:
             print(f"Error: {result}")
     
-    def cancelar_turno(self):
-        print("\n--- CANCELAR TURNO ---")
-        
-        turno_id = input("ID del turno a cancelar: ")
-        
-        request = Request({'turno_id': turno_id})
-        success, result = self.turno_controller.cancelar_turno(request)
-        
-        if success:
-            print(f"Turno cancelado: {result}")
-        else:
-            print(f"Error: {result}")
-        
     def eliminar_cliente(self):
         cliente_dni = input("DNI del cliente a eliminar: ")
         cliente = None
-        cliente = Cliente.where(Cliente,dni=cliente_dni)
+        cliente = Cliente.where(dni=cliente_dni)
 
         if not cliente:
             print("Cliente no encontrado")
@@ -251,7 +192,7 @@ class ClienteController:
         print("\n--- ACTUALIZAR CLIENTE ---")
         cliente_dni = input("DNI del cliente a actualizar: ")
         cliente = None
-        cliente = Cliente.where(Cliente,dni=cliente_dni)
+        cliente = Cliente.where(dni=cliente_dni)
         print("Cliente: ",cliente)
 
         if not cliente:
@@ -274,11 +215,7 @@ class ClienteController:
             'cliente': cliente,
         })
         
-        success, result = self.actualizar_cliente(request)
+        success = self.actualizar_cliente(request)
         
-        if success:
-            print(f"Cliente actualizado: {result}")
-        else:
-            print("Errores:")
-            for campo, error in result.items():
-                print(f"   - {campo}: {error}")
+        if success is True:
+            print(f"Cliente actualizado")

@@ -6,5 +6,29 @@
         "dni": "45688609",
         "email": "lukareyes04@gmail.com",
         "telefono": "1122882227"
+    },
+    {
+        "id": "2",
+        "nombre": "Luis",
+        "apellido": "Perez",
+        "dni": "89237912",
+        "email": "luisperez@gmail.com",
+        "telefono": "11229090998"
+    },
+    {
+        "id": "3",
+        "nombre": "Luka",
+        "apellido": "Juarez",
+        "dni": "66789990",
+        "email": "lukajuarez@gmail.com",
+        "telefono": "1199077667"
+    },
+    {
+        "id": "4",
+        "nombre": "Macarena",
+        "apellido": "Zacariaz",
+        "dni": "42300245",
+        "email": "macarenazacariaz@gmail.com",
+        "telefono": "1126859019"
     }
 ]

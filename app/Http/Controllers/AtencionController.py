@@ -9,29 +9,32 @@ from app.Http.Controllers.DiasController import DiasController
 
 from datetime import time
 
+
 class AtencionController:
     def __init__(self):
         self._servicios_controller = ServiciosController()
         self._dias_controller = DiasController()
         
     
-    def get_atenciones():
+    def get_atenciones(self):
         return Atencion.all()
+
     def guardar_atencion(self, request:Request):
+        # Atenciones no dependen del profesional; se definen por servicio/día/hora
         (request.require('hora_desde','hora_hasta','dia','id_servicio','cantidad'))
-        
+
         if(request.has_errors()):
             return False, request.errors
-        
+
         try:
             data = request.data
             atenciones = Atencion.all()
-            
+
             if (any((a.hora_desde == data['hora_desde'] and a.hora_hasta == data['hora_hasta'] and a.id_servicio == data['id_servicio']) for a in atenciones)):
                 return False, {"error":"Esta atención ya existe!"}
-            
+
             atencion = Atencion(hora_desde=data["hora_desde"],hora_hasta=data["hora_hasta"],dia=data["dia"],id_servicio=data["id_servicio"],cantidad=data["cantidad"])
-            
+
             return atencion.save()
         except Exception as e:
             return False, {"error": f"Error al registrar la atención: {str(e)}"}
@@ -69,7 +72,7 @@ class AtencionController:
             servicio = servicios[opc_servicio-1]
             print(servicio)
             print(dia)
-            
+
             cantidad = int(input("Ingrese la cantidad de atenciones requeridas: "))
             
             request = Request({
@@ -80,7 +83,10 @@ class AtencionController:
                 'cantidad':cantidad
             })
             
-            return self.guardar_atencion(request)
+            success =  self.guardar_atencion(request)
+            
+            if (success):
+                print("Atencion registrada!")    
         except Exception as e:
             print(str(e))
             return False, {"error": f"Error al registrar la atención: {str(e)}"}
@@ -89,19 +95,19 @@ class AtencionController:
         (request.require('atencion'))
         
         if(request.has_errors()):
-            return False, request.errors
+            return False
         
         atencion = request.get('atencion') if isinstance(request.get('atencion'), Atencion) else None
         try:
             # Buscar cliente
             if not hasattr(atencion,'id'):
-                return False, {"error": "ID de atención inválido"}
+                return False
             
             if not atencion:
-                return False, {"error": "Atención no encontrada"}
+                return False
             
-            atencion.update()
-            return True, atencion.all()
+            return atencion.update()
+            
             
         except Exception as e:
             return False, {"error": f"Error al actualizar atención: {str(e)}"}
@@ -148,7 +154,10 @@ class AtencionController:
         
         request = Request({'atencion':atencion})
         
-        return self.modificar_atencion(request)
+        success = self.modificar_atencion(request)
+        
+        if success:
+            print("Atención actualizada!")
     
     def buscar_atencion(self):
         dias = self._dias_controller.get_dias()
@@ -178,7 +187,7 @@ class AtencionController:
         
         servicio_s = servicios[opc_servicio-1]
         
-        atencion = Atencion.where(Atencion, hora_desde=hora_desde_s,hora_hasta=hora_hasta_s,dia=dia_s.nombre,id_servicio=servicio_s.id)
+        atencion = Atencion.where(hora_desde=hora_desde_s,hora_hasta=hora_hasta_s,dia=dia_s.nombre,id_servicio=servicio_s.id)
         if not atencion:
             return False, {"error":"No sé encontró la atención"}
         

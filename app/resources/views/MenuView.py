@@ -4,17 +4,15 @@ from app.Http.Controllers.TurnoController import TurnoController
 from app.Http.Controllers.ProfesionalController import ProfesionalController
 from app.Http.Controllers.AtencionController import AtencionController
 from app.Http.Controllers.ServiciosController import ServiciosController
-from app.Http.Controllers.LiquidacionController import LiquidacionController
 
 
 
 class MenuView:
     def __init__(self):
+        self.professional_controller = ProfesionalController()
         self.cliente_controller = ClienteController()
         self.turno_controller = TurnoController()
         self.atencion_controller = AtencionController()
-        self.professional_controller = ProfesionalController()
-        self.liquidacion_controller = LiquidacionController()
         self.servicios_controller = ServiciosController()
             
     def mostrar_menu_principal(self):
@@ -116,17 +114,20 @@ class MenuView:
     def menu_administracion(self):
         print("=== MENÚ ADMINISTRACIÓN ===")
         print("1.) Generación de turnos")
-        print("2.) Liquidación del día por fecha")
-        print("3.) Liquidación del día actual")
-        print("4.) Volver al menú principal")
+        print("2.) Volver al menú principal")
 
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            self.menu_profesionales()
+            # Generar turnos masivos para una fecha (se consultará al usuario)
+            success, result = self.turno_controller.solicitar_generar_turnos_masivos()
+            if success:
+                total = sum(len(r[2]) if isinstance(r[2], list) else 0 for r in result)
+                print(f"Generación finalizada. Resultados por profesional (id, ok, detalles):\n{result}")
+                print(f"Total aproximado de turnos generados: {total}")
+            else:
+                print(f"Error al generar turnos: {result}")
         elif opcion == "2":
-            self.menu_turnos()
-        elif opcion == "3":
             return
         else:
             print("Opción inválida")

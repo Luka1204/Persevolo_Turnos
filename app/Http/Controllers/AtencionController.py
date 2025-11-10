@@ -24,20 +24,20 @@ class AtencionController:
         (request.require('hora_desde','hora_hasta','dia','id_servicio','cantidad'))
 
         if(request.has_errors()):
-            return False, request.errors
+            return False
 
         try:
             data = request.data
             atenciones = Atencion.all()
 
             if (any((a.hora_desde == data['hora_desde'] and a.hora_hasta == data['hora_hasta'] and a.id_servicio == data['id_servicio']) for a in atenciones)):
-                return False, {"error":"Esta atención ya existe!"}
+                return False
 
             atencion = Atencion(hora_desde=data["hora_desde"],hora_hasta=data["hora_hasta"],dia=data["dia"],id_servicio=data["id_servicio"],cantidad=data["cantidad"])
-
+            print("Entre aca")
             return atencion.save()
         except Exception as e:
-            return False, {"error": f"Error al registrar la atención: {str(e)}"}
+            return False
     def solicitar_guardar_atencion(self):
         
         try:
@@ -49,9 +49,8 @@ class AtencionController:
                 print("No hay servicios, cargados! Para registrar atenciones debe cargar servicios!")
                 return False
             
-            format_code_3 = "%H:%M"
-            hora_desde = time.fromisoformat(input("Ingrese la hora desde donde comienza la atención con el siguiente formato (HH:MM:SS): "))
-            hora_hasta =  time.fromisoformat(input("Ingrese la hora hasta donde finaliza la atención con el siguiente formato (HH:MM:SS): "))
+            hora_desde = input("Ingrese la hora desde donde comienza la atención con el siguiente formato (HH:MM:SS): ")
+            hora_hasta =  input("Ingrese la hora hasta donde finaliza la atención con el siguiente formato (HH:MM:SS): ")
 
             print(hora_desde,hora_hasta)
             print("Seleccione el día de la atencion: ")
@@ -89,7 +88,7 @@ class AtencionController:
                 print("Atencion registrada!")    
         except Exception as e:
             print(str(e))
-            return False, {"error": f"Error al registrar la atención: {str(e)}"}
+            return False
         
     def modificar_atencion(self, request: Request):
         (request.require('atencion'))

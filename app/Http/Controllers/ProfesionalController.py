@@ -2,6 +2,7 @@ from app.Models.PersevoloORM.Request.Request import Request
 from app.Models.Profesional import Profesional
 from app.Models.Atencion import Atencion
 from app.Models.Servicio import Servicio
+from app.Models.Turno import Turno
 
 class ProfesionalController:
     
@@ -42,12 +43,19 @@ class ProfesionalController:
         
     def eliminar_profesional(self, dni_p):
         """Eliminar profesional por DNI. Usa find_one_by para obtener la instancia y la elimina."""
-        profesional = Profesional.find_one_by(dni=dni_p)
+        profesional = Profesional.where(dni=dni_p)
         if not profesional:
             print(f"No se encontró profesional con DNI {dni_p}")
             return 0
+        profesional = profesional[0]
+        # Eliminar turnos disponibles asociados al profesional
+        turnos_a_eliminar = [t for t in Turno.all() if t.profesional_id== str(profesional.id) and t.estado == 'disponible']
+        for turno in turnos_a_eliminar:
+            turno.delete()  # Asumiendo que hay un método delete en la clase Turno
+
+        # Ahora eliminar el profesional
         deleted = profesional.delete()
-        print(f"Se eliminaron: {deleted}")
+        print(f"Se eliminaron: {deleted} profesionales y {len(turnos_a_eliminar)} turnos disponibles.")
         return deleted
 
     def solicitar_registro_profesional(self):

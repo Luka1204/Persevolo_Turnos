@@ -14,8 +14,7 @@ class Validator:
             'hora_desde': self.validate_hora_desde,
             'hora_hasta': self.validate_hora_hasta,
             'duracion': self.validate_duracion,
-            'precio': self.validate_precio,
-            'atencines':self.validate_atenciones
+            'precio': self.validate_precio
         }
 
     def _is_non_empty_string(self, v):
@@ -30,8 +29,6 @@ class Validator:
             return result
         return None  # No hay validador para este campo
 
-    def validate_atenciones(self, val):
-        return len(val) > 0
     def validate_nombre(self, value):
         if not self._is_non_empty_string(value):
             return "El nombre no puede estar vacío"
@@ -90,18 +87,13 @@ class Validator:
         return None
 
     def _parse_time(self, value):
-        if isinstance(value, str):
-            for fmt in ("%H:%M", "%H:%M:%S"):
-                try:
-                    return datetime.strptime(value.strip(), fmt).time()
-                except Exception:
-                    continue
-        return None
+        regex = r"^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$"
+        return bool(re.match(regex, str(value)))
 
     def validate_hora_desde(self, value):
         if value is None or (isinstance(value, str) and value.strip() == ""):
             return "hora_desde requerida"
-        if self._parse_time(value) is None:
+        if self._parse_time(value) is False:
             return "Formato de hora_desde inválido (HH:MM o HH:MM:SS)"
         return None
 

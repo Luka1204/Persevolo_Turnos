@@ -1,7 +1,2 @@
 id,nombre,apellido,dni,cuil,atenciones
-1,Luis,Perez,45677990,20456779905,"[{""id"": ""1"", ""id_servicio"": ""1"", ""dia"": ""Lunes""}]"
-2,Luis,Rofis,45688609,10291028,[]
-3,abc,lalala,829371893,81982139,[]
-4,Jorge,MEdina,187291729,821390127,[]
-5,Luka,Pepepe,1723872183,7213871283,"[Atencion(id='1', hora_desde='08:00:00', hora_hasta='12:00:00', dia='Lunes', id_servicio='1', cantidad='20')]"
-6,Daniel,Bartolomé,347823479,20138912370,"[Atencion(id='1', hora_desde='08:00:00', hora_hasta='12:00:00', dia='Lunes', id_servicio='1', cantidad='20')]"
+2,Juan,Yovera,293923782,29318012830,"[Atencion(id='1', hora_desde='08:00:00', hora_hasta='12:00:00', dia='Lunes', id_servicio='1', cantidad='100')]"

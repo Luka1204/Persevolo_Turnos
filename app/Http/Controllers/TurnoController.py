@@ -16,28 +16,24 @@ class TurnoController:
         self._cliente_controller = ClienteController()
         
     def solicitar_turno(self):
-        """
-        Buscar cliente usando solicitar_buscar_cliente, luego mostrar turnos disponibles y reservar.
-        """
-        # Buscar cliente usando método multiparametro
+        """Buscar cliente y reservar un turno disponible."""
         clientes = self._cliente_controller.solicitar_buscar_cliente()
         if not clientes:
             print("No se encontraron clientes.")
             return False, {"error": "Cliente no encontrado"}
         if isinstance(clientes, dict):
-            # Si el método retorna un dict de error
             return False, clientes
+
         print("Seleccione un cliente:")
         for idx, c in enumerate(clientes, 1):
             print(f"{idx}. {c.nombre} {c.apellido} (ID: {c.id})")
         sel = input("Opción: ")
         try:
             cliente = clientes[int(sel)-1]
-        except Exception:
+        except (IndexError, ValueError):
             print("Selección inválida.")
             return False, {"error": "Selección inválida"}
 
-        # Mostrar todos los turnos disponibles (sin cliente asignado)
         turnos = [t for t in Turno.all() if t.estado == 'disponible']
         if not turnos:
             print("No hay turnos disponibles.")
@@ -59,33 +55,32 @@ class TurnoController:
                 except Exception:
                     dia_nombre = ''
             print(f"{idx}. Fecha: {t.fecha} | Día: {dia_nombre} | Hora: {t.hora} | Profesional: {profesional.nombre if profesional else t.profesional_id} | Servicio: {servicio.nombre if servicio else '-'}")
+        
         sel = input("Opción: ")
         try:
             turno = turnos[int(sel)-1]
-        except Exception:
+        except (IndexError, ValueError):
             print("Selección inválida.")
             return False, {"error": "Selección inválida"}
 
-        # Reservar el turno
         return self.reservar_turno(turno.id, cliente.id)
 
     def cancelar_turno(self):
-        """
-        Cancela un turno mostrando los turnos reservados del cliente (usando solicitar_buscar_cliente).
-        """
+        """Cancela un turno mostrando los turnos reservados del cliente."""
         clientes = self._cliente_controller.solicitar_buscar_cliente()
         if not clientes:
             print("No se encontraron clientes.")
             return False, {"error": "Cliente no encontrado"}
         if isinstance(clientes, dict):
             return False, clientes
+
         print("Seleccione un cliente:")
         for idx, c in enumerate(clientes, 1):
             print(f"{idx}. {c.nombre} {c.apellido} (ID: {c.id})")
         sel = input("Opción: ")
         try:
             cliente = clientes[int(sel)-1]
-        except Exception:
+        except (IndexError, ValueError):
             print("Selección inválida.")
             return False, {"error": "Selección inválida"}
 
@@ -93,6 +88,7 @@ class TurnoController:
         if not turnos:
             print("No hay turnos reservados para este cliente.")
             return False, {"error": "No hay turnos reservados"}
+
         print("Seleccione el turno a cancelar:")
         for idx, t in enumerate(turnos, 1):
             profesional = next((p for p in Profesional.all() if str(p.id) == str(t.profesional_id)), None)
@@ -109,10 +105,11 @@ class TurnoController:
                 except Exception:
                     dia_nombre = ''
             print(f"{idx}. Fecha: {t.fecha} | Día: {dia_nombre} | Hora: {t.hora} | Profesional: {profesional.nombre if profesional else t.profesional_id} | Servicio: {servicio.nombre if servicio else '-'}")
+
         sel = input("Opción: ")
         try:
             turno = turnos[int(sel)-1]
-        except Exception:
+        except (IndexError, ValueError):
             print("Selección inválida.")
             return False, {"error": "Selección inválida"}
 
@@ -122,22 +119,21 @@ class TurnoController:
         return True, turno
 
     def consultar_turno(self):
-        """
-        Consulta un turno mostrando los turnos del cliente (usando solicitar_buscar_cliente).
-        """
+        """Consulta un turno mostrando los turnos del cliente."""
         clientes = self._cliente_controller.solicitar_buscar_cliente()
         if not clientes:
             print("No se encontraron clientes.")
             return False, {"error": "Cliente no encontrado"}
         if isinstance(clientes, dict):
             return False, clientes
+
         print("Seleccione un cliente:")
         for idx, c in enumerate(clientes, 1):
             print(f"{idx}. {c.nombre} {c.apellido} (ID: {c.id})")
         sel = input("Opción: ")
         try:
             cliente = clientes[int(sel)-1]
-        except Exception:
+        except (IndexError, ValueError):
             print("Selección inválida.")
             return False, {"error": "Selección inválida"}
 
@@ -145,6 +141,7 @@ class TurnoController:
         if not turnos:
             print("No hay turnos para este cliente.")
             return False, {"error": "No hay turnos"}
+
         print("Seleccione el turno a consultar:")
         for idx, t in enumerate(turnos, 1):
             profesional = next((p for p in Profesional.all() if str(p.id) == str(t.profesional_id)), None)
@@ -161,10 +158,11 @@ class TurnoController:
                 except Exception:
                     dia_nombre = ''
             print(f"{idx}. Fecha: {t.fecha} | Día: {dia_nombre} | Hora: {t.hora} | Profesional: {profesional.nombre if profesional else t.profesional_id} | Servicio: {servicio.nombre if servicio else '-'} | Estado: {t.estado}")
+
         sel = input("Opción: ")
         try:
             turno = turnos[int(sel)-1]
-        except Exception:
+        except (IndexError, ValueError):
             print("Selección inválida.")
             return False, {"error": "Selección inválida"}
 
@@ -172,72 +170,59 @@ class TurnoController:
         return True, turno
 
     def generar_turnos_para_profesional(self, profesional_id: str, fecha_str: str):
-        """Genera turnos para las atenciones aplicables en una fecha. Si profesional_id no es vacío, limita a ese profesional."""
+        """Genera turnos para las atenciones aplicables en una fecha."""
         try:
+            print("Iniciando generación de turnos...")
             fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
             dias_map = {0: 'LUNES', 1: 'MARTES', 2: 'MIERCOLES', 3: 'JUEVES', 4: 'VIERNES', 5: 'SABADO', 6: 'DOMINGO'}
             dia_nombre = dias_map[fecha.weekday()]
+            print(f"Fecha: {fecha}, Día: {dia_nombre}")
 
             atenciones = [a for a in Atencion.all() if getattr(a, 'dia', '').upper() == dia_nombre]
             if not atenciones:
+                print("No hay atenciones configuradas para la fecha dada.")
                 return False, {"error": "No hay atenciones configuradas para la fecha dada"}
 
             creados = []
 
-            def parse_time(t):
-                if isinstance(t, str):
-                    try:
-                        return datetime.strptime(t, "%H:%M:%S").time()
-                    except Exception:
-                        return datetime.strptime(t, "%H:%M").time()
-                return t
-
-            def profesional_ofrece_atencion(prof, atencion_id):
-                val = getattr(prof, 'atenciones', '')
-                if isinstance(val, str):
-                    items = [s.strip() for s in val.split(',') if s.strip()]
-                    return str(atencion_id) in items
-                if isinstance(val, list):
-                    for item in val:
-                        if isinstance(item, dict):
-                            if str(item.get('id')) == str(atencion_id):
-                                return True
-                        else:
-                            if str(item) == str(atencion_id):
-                                return True
-                return False
-
             for a in atenciones:
                 servicio = Servicio.find_one_by(id=a.id_servicio)
                 if not servicio:
+                    print(f"Servicio no encontrado para atención ID: {a.id}")
                     continue
 
-                hora_desde = parse_time(a.hora_desde)
-                hora_hasta = parse_time(a.hora_hasta)
+                # ...existing code...
+                hora_desde = datetime.strptime(a.hora_desde, "%H:%M:%S").time()  # Ajustar a HH:MM:SS si es necesario
+                hora_hasta = datetime.strptime(a.hora_hasta, "%H:%M:%S").time()  # Ajustar a HH:MM:SS si es necesario
                 dur = int(servicio.duracion)
 
-                profesionales = [p for p in Profesional.all() if profesional_ofrece_atencion(p, a.id)]
-                if profesional_id and profesional_id != '':
-                    profesionales = [p for p in profesionales if str(p.id) == str(profesional_id)]
+                profesionales = [p for p in Profesional.all() if str(p.id) == str(profesional_id)]
                 if not profesionales:
+                    print(f"No se encontraron profesionales para ID: {profesional_id}")
                     continue
 
                 for prof in profesionales:
                     cursor = datetime.combine(fecha, hora_desde)
                     end_at = datetime.combine(fecha, hora_hasta)
+                    print(f"Generando turnos desde {cursor} hasta {end_at}")
+
                     while cursor + timedelta(minutes=dur) <= end_at:
                         slot_hora = cursor.time().strftime("%H:%M")
+                        print(f"Verificando slot: {slot_hora}")
                         if not Turno.exists(profesional_id=str(prof.id), fecha=fecha_str, hora=slot_hora):
                             nuevo = Turno(cliente_id='', profesional_id=str(prof.id), fecha=fecha_str, hora=slot_hora, atencion_id=str(a.id), estado='disponible')
                             nuevo.save()
                             creados.append(nuevo)
+                            print(f"Turno creado: {nuevo}")
                         cursor += timedelta(minutes=dur)
 
             return True, creados
         except Exception as e:
+            print(f"Error al generar turnos: {str(e)}")
             return False, {"error": f"Error al generar turnos: {str(e)}"}
 
     def generar_turnos_masivos(self, fecha_str: str):
+        """Genera turnos masivos para todos los profesionales."""
         resultados = []
         for prof in Profesional.all():
             ok, data = self.generar_turnos_para_profesional(str(prof.id), fecha_str)
@@ -245,10 +230,12 @@ class TurnoController:
         return True, resultados
 
     def solicitar_generar_turnos_masivos(self):
+        """Solicita la fecha para generar turnos masivos."""
         fecha = input('Fecha (YYYY-MM-DD) para generar turnos masivos: ')
         return self.generar_turnos_masivos(fecha)
 
     def reservar_turno(self, turno_id: str, cliente_id: str):
+        """Reserva un turno existente."""
         try:
             turnos = Turno.all()
             for t in turnos:
@@ -259,13 +246,12 @@ class TurnoController:
                     t.estado = 'reservado'
                     Turno.save_all(turnos)
                     return True, t
-            turnos = Turno.all()
+            return False, {"error": "Turno no encontrado"}
         except Exception as e:
             return False, {"error": f"Error al solicitar turno: {str(e)}"}
-    
+
     def cancelar_turno(self, request: Request):
-        """ Cancelar turno """
-        # Soporta llamada interactiva si no se pasa Request
+        """Cancela un turno."""
         if request is None:
             turno_id = input("ID del turno a cancelar: ")
             request = Request({'turno_id': turno_id})
@@ -289,111 +275,3 @@ class TurnoController:
             
         except Exception as e:
             return False, {"error": f"Error al cancelar turno: {str(e)}"}
-
-    def generar_turnos_para_profesional(self, profesional_id: str, fecha_str: str):
-        """Genera turnos disponibles para un profesional en una fecha concreta basada en sus atenciones """
-        try:
-            # validar fecha
-            fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
-
-            # mapear nombre del dia en español (asume Dia.nombre está en español)
-            dias_map = {
-                0: 'LUNES', 1: 'MARTES', 2: 'MIERCOLES', 3: 'JUEVES', 4: 'VIERNES', 5: 'SABADO', 6: 'DOMINGO'
-            }
-            dia_nombre = dias_map[fecha.weekday()]
-
-            # obtener atenciones para ese dia (las atenciones son independientes)
-            atenciones = [a for a in Atencion.all() if a.dia.upper() == dia_nombre]
-
-            if not atenciones:
-                return False, {"error": "No hay atenciones configuradas para la fecha dada"}
-
-            creados = []
-            # helper para parsear horas
-            def parse_time(t):
-                if isinstance(t, str):
-                    try:
-                        return datetime.strptime(t, "%H:%M:%S").time()
-                    except ValueError:
-                        return datetime.strptime(t, "%H:%M").time()
-                return t
-
-            # helper para verificar si un profesional ofrece una atencion
-            def profesional_ofrece_atencion(prof, atencion_id):
-                val = getattr(prof, 'atenciones', '')
-                # Si es string (formato antiguo o vacío)
-                if isinstance(val, str):
-                    items = [s.strip() for s in val.split(',') if s.strip()]
-                    return str(atencion_id) in items
-
-                # Si es lista, puede contener ids o dicts con 'id'
-                if isinstance(val, list):
-                    for item in val:
-                        if isinstance(item, dict):
-                            if str(item.get('id')) == str(atencion_id):
-                                return True
-                        else:
-                            if str(item) == str(atencion_id):
-                                return True
-                return False
-
-            for a in atenciones:
-                servicio = Servicio.find_one_by(id=a.id_servicio)
-                if not servicio:
-                    continue
-
-                hora_desde = parse_time(a.hora_desde)
-                hora_hasta = parse_time(a.hora_hasta)
-                dur = int(servicio.duracion)
-
-                # profesionales que ofrecen esta atencion
-                profesionales = [p for p in Profesional.all() if profesional_ofrece_atencion(p, a.id)]
-                if profesional_id and profesional_id != '':
-                    profesionales = [p for p in profesionales if str(p.id) == str(profesional_id)]
-
-                if not profesionales:
-                    # si ningún profesional está asignado a la atencion, se omite
-                    continue
-
-                # generar slots para cada profesional
-                for prof in profesionales:
-                    cursor = datetime.combine(fecha, hora_desde)
-                    end_at = datetime.combine(fecha, hora_hasta)
-                    while cursor + timedelta(minutes=dur) <= end_at:
-                        slot_hora = cursor.time().strftime("%H:%M")
-                        # verificar no exista turno ya para ese profesional/fecha/hora
-                        if not Turno.exists(profesional_id=str(prof.id), fecha=fecha_str, hora=slot_hora):
-                            nuevo = Turno(cliente_id='', profesional_id=str(prof.id), fecha=fecha_str, hora=slot_hora, atencion_id=str(a.id), estado='disponible')
-                            nuevo.save()
-                            creados.append(nuevo)
-                        cursor += timedelta(minutes=dur)
-
-            return True, creados
-        except Exception as e:
-            return False, {"error": f"Error al generar turnos: {str(e)}"}
-
-
-    def generar_turnos_masivos(self, fecha_str: str):
-        """Genera turnos para todos los profesionales que tengan atenciones para la fecha dada."""
-        resultados = []
-        for prof in Profesional.all():
-            ok, data = self.generar_turnos_para_profesional(str(prof.id), fecha_str)
-            resultados.append((prof.id, ok, data))
-        return True, resultados
-
-    def solicitar_generar_turnos_masivos(self):
-        fecha = input('Fecha (YYYY-MM-DD) para generar turnos masivos: ')
-        return self.generar_turnos_masivos(fecha)
-
-    def reservar_turno(self, turno_id: str, cliente_id: str):
-        """Reservar un turno existente: asigna cliente_id y marca estado 'reservado' si estaba disponible."""
-        turnos = Turno.all()
-        for turno in turnos:
-            if str(turno.id) == str(turno_id):
-                if getattr(turno, 'estado', '') != 'disponible':
-                    return False, {"error": "Turno no disponible para reservar"}
-                turno.cliente_id = str(cliente_id)
-                turno.estado = 'reservado'
-                Turno.save_all(turnos)
-                return True, turno
-        return False, {"error": "Turno no encontrado"}

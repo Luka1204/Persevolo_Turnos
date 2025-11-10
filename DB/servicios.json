@@ -3,24 +3,6 @@
         "id": "1",
         "nombre": "CORTE",
         "duracion": "60",
-        "precio": "15000.0"
-    },
-    {
-        "id": "2",
-        "nombre": "TINTURA",
-        "duracion": "120",
-        "precio": "20000.0"
-    },
-    {
-        "id": "3",
-        "nombre": "NUTRICION",
-        "duracion": "60",
         "precio": "19000.0"
-    },
-    {
-        "id": "4",
-        "nombre": "LAVADO",
-        "duracion": "50",
-        "precio": "10000.0"
     }
 ]

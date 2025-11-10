@@ -76,19 +76,13 @@ class Model(ABC, FileHandler):
         Recorre los campos definidos en _fields y valida con los validadores disponibles.
         Devuelve True si pasa, o un dict {campo: mensaje} con errores.
         """
-        print("Estoy acá literalmente - Validando instancia")
         errors = {}
-        
+                
         for field in self._fields:
-            if hasattr(self, field):
-                value = getattr(self, field)
-        
-        for field in getattr(self, "_fields", []):
             if field == 'id':
                 continue
             if hasattr(self, field):
                 val = getattr(self, field)
-                
                 # Usar el método mejorado del validador
                 error_msg = self._validator.validate_field(field, val)
                 
@@ -133,14 +127,14 @@ class Model(ABC, FileHandler):
         En caso contrario sigue con el flujo normal de guardado.
         """
         valid = self.validate()
-        
         if valid is not True:
             print(f"Errores de validación:")
             for key,value in valid.items():
                 print(f"Campo:{key}, {value}")
             return False
         
-        # Generar ID si no existe
+        # Generar ID 
+        # si no existe
         if not hasattr(self, 'id') or not self.id:
             self.id = self.generar_id_unico()
             
@@ -158,10 +152,10 @@ class Model(ABC, FileHandler):
                 os.fsync(file.fileno())
                 print(f"Se guardó la instancia de {self.__class__.__name__} en {nom_archivo}")
                 self.convert_to_json(f"{nom_archivo.rsplit('.',1)[0]}.json")
-                return True, "Guardado exitoso"
+                return True
         except Exception as e:
             print(f"Error al guardar: {e}")
-            return False, f"Error al guardar: {e}"
+            return False
 
     @classmethod
     def find_by(cls, **kwargs):

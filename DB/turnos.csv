@@ -1,0 +1,5 @@
+id,fecha,hora,cliente_id,profesional_id,atencion_id,estado
+1,2025-11-10,08:00,,1,1,disponible
+2,2025-11-10,09:00,1,1,1,reservado
+3,2025-11-10,10:00,,1,1,disponible
+4,2025-11-10,11:00,,1,1,disponible

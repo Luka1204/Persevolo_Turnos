@@ -8,12 +8,7 @@ class Request():
     """
     
     def __init__(self, data: Dict[str, Any] = None):
-        """
-        Inicializar Request con datos
-        
-        Args:
-            data: Diccionario con datos de la solicitud
-        """
+        """ Inicializar Request con datos """
         self._data = data or {}
         self._errors = {}
         self._validated_data = {}
@@ -42,16 +37,7 @@ class Request():
         return len(self._errors) == 0
     
     def get(self, key: str, default: Any = None) -> Any:
-        """
-        Obtener valor por clave
-        
-        Args:
-            key: Clave a buscar
-            default: Valor por defecto si no existe
-            
-        Returns:
-            Valor de la clave o default
-        """
+        """ Obtener valor por clave """
         return self._data.get(key, default)
     
     def get_str(self, key: str, default: str = "") -> str:
@@ -99,108 +85,49 @@ class Request():
         return value if isinstance(value, dict) else default
     
     def require(self, *fields: str) -> 'Request':
-        """
-        Validar que los campos requeridos estén presentes
-        
-        Args:
-            *fields: Campos requeridos
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar que los campos requeridos estén presentes """
         for field in fields:
             if field not in self._data or self._data[field] in (None, ""):
                 self._add_error(field, f"El campo '{field}' es requerido")
         return self
     
     def validate_email(self, field: str) -> 'Request':
-        """
-        Validar que un campo sea un email válido
-        
-        Args:
-            field: Campo a validar
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar que un campo sea un email válido """
         value = self.get(field)
         if value and '@' not in str(value):
             self._add_error(field, f"El campo '{field}' debe ser un email válido")
         return self
     
     def validate_min_length(self, field: str, min_length: int) -> 'Request':
-        """
-        Validar longitud mínima de un campo string
-        
-        Args:
-            field: Campo a validar
-            min_length: Longitud mínima requerida
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar longitud mínima de un campo string """
         value = self.get_str(field)
         if value and len(value) < min_length:
             self._add_error(field, f"El campo '{field}' debe tener al menos {min_length} caracteres")
         return self
     
     def validate_max_length(self, field: str, max_length: int) -> 'Request':
-        """
-        Validar longitud máxima de un campo string
-        
-        Args:
-            field: Campo a validar
-            max_length: Longitud máxima permitida
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar longitud máxima de un campo string """
         value = self.get_str(field)
         if value and len(value) > max_length:
             self._add_error(field, f"El campo '{field}' no puede tener más de {max_length} caracteres")
         return self
     
     def validate_numeric(self, field: str) -> 'Request':
-        """
-        Validar que un campo sea numérico
-        
-        Args:
-            field: Campo a validar
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar que un campo sea numérico """
         value = self.get(field)
         if value and not str(value).replace('.', '').isdigit():
             self._add_error(field, f"El campo '{field}' debe ser numérico")
         return self
     
     def validate_phone(self, field: str) -> 'Request':
-        """
-        Validar que un campo sea un teléfono válido
-        
-        Args:
-            field: Campo a validar
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar que un campo sea un teléfono válido """
         value = self.get_str(field)
         if value and not value.replace(' ', '').replace('-', '').isdigit():
             self._add_error(field, f"El campo '{field}' debe ser un teléfono válido")
         return self
     
     def validate_date(self, field: str, format: str = "%Y-%m-%d") -> 'Request':
-        """
-        Validar que un campo sea una fecha válida
-        
-        Args:
-            field: Campo a validar
-            format: Formato de fecha esperado
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar que un campo sea una fecha válida """
         value = self.get_str(field)
         if value:
             try:
@@ -210,16 +137,7 @@ class Request():
         return self
     
     def validate_time(self, field: str, format: str = "%H:%M") -> 'Request':
-        """
-        Validar que un campo sea una hora válida
-        
-        Args:
-            field: Campo a validar
-            format: Formato de hora esperado
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validar que un campo sea una hora válida """
         value = self.get_str(field)
         if value:
             try:
@@ -229,34 +147,12 @@ class Request():
         return self
     
     def validate_custom(self, field: str, validator: callable, message: str = None) -> 'Request':
-        """
-        Validación personalizada
-        
-        Args:
-            field: Campo a validar
-            validator: Función de validación que retorna bool
-            message: Mensaje de error personalizado
-            
-        Returns:
-            Self para method chaining
-        """
+        """ Validación personalizada"""
         value = self.get(field)
         if value and not validator(value):
             error_msg = message or f"El campo '{field}' no es válido"
             self._add_error(field, error_msg)
         return self
-    
-    """ def add_data(self, **kwargs) -> 'Request':
-        Agregar datos adicionales a la request
-        
-        Args:
-            **kwargs: Datos a agregar
-            
-        Returns:
-            Self para method chaining
-
-        self._data.update(kwargs)
-        return self """
     
     def clean(self) -> 'Request':
         """

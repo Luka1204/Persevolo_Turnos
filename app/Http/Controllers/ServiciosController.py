@@ -22,7 +22,7 @@ class ServiciosController:
             servicios = self.get_servicios()
             existe = any((s.nombre == data['nombre'] and s.duracion == data['duracion'] and s.precio == data ['precio']) for s in servicios)
             if existe:
-                return False, {"error": "Ya existe un Servicio con esas características"}
+                return False
 
             # Crear nuevo profesional
             nuevo_servicio = Servicio(
@@ -33,9 +33,8 @@ class ServiciosController:
 
             #profesionales.append(nuevo_profesional)
             #Profesional.save_all(profesionales)
-            nuevo_servicio.save()
+            return nuevo_servicio.save()
 
-            return True, nuevo_servicio
             #modificar profesional
         except Exception as e:
             return False, {"error": f"Error al registrar servicio: {str(e)}"}
@@ -55,26 +54,27 @@ class ServiciosController:
             'precio':precio
         })
         
-        return self.guardar_servicio(request)
+        success = self.guardar_servicio(request)
     
+        if success:
+            print("Servicio registrado!")
                 
     def modificar_servicio(self,request:Request):
         
         request.require('servicio')
         if request.has_errors():
-            return False, request.errors
+            return False
         
         servicio = request.get('servicio') if isinstance(request.get('servicio'), Servicio) else None
         try:
             # Buscar cliente
             if not hasattr(servicio,'id'):
-                return False, {"error": "ID de servicio inválido"}
+                return False
             
             if not servicio:
-                return False, {"error": "Servicio no encontrado"}
+                return False
             
-            servicio.update()
-            return True, self.get_servicios()
+            return servicio.update()
             
         except Exception as e:
             return False, {"error": f"Error al actualizar servicio: {str(e)}"}
@@ -103,14 +103,10 @@ class ServiciosController:
                 'servicio': servicio,
             })
             
-            success, result = self.modificar_servicio(request)
+            success = self.modificar_servicio(request)
             
             if success:
-                print(f"Servicio actualizado: {result}")
-            else:
-                print("Errores:")
-                for campo, error in result.items():
-                    print(f"   - {campo}: {error}")
+                print(f"Servicio actualizado!")
         elif opc.upper() == 'N':
             self.solicitar_modificar_servicio()
         else:
@@ -124,7 +120,7 @@ class ServiciosController:
             print("Ingrese el nombre del servicio a buscar!")
             self.buscar_servicio_by_nombre()
             
-        servicio = Servicio.where(Servicio,nombre=nombre_s.upper())
+        servicio = Servicio.where(nombre=nombre_s.upper())
         if not servicio:
             return False
         

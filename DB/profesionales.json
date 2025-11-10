@@ -1,23 +1,56 @@
 [
     {
         "id": "1",
-        "nombre": "EMMA",
-        "apellido": "BUTO",
-        "dni": "384843",
-        "cuil": "128282"
+        "nombre": "Luis",
+        "apellido": "Perez",
+        "dni": "45677990",
+        "cuil": "20456779905",
+        "atenciones": [
+            {
+                "id": "1",
+                "id_servicio": "1",
+                "dia": "Lunes"
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "nombre": "Luis",
+        "apellido": "Rofis",
+        "dni": "45688609",
+        "cuil": "10291028",
+        "atenciones": []
     },
     {
         "id": "3",
-        "nombre": "Rosa",
-        "apellido": "Melano",
-        "dni": "2939333",
-        "cuil": "26062011"
+        "nombre": "abc",
+        "apellido": "lalala",
+        "dni": "829371893",
+        "cuil": "81982139",
+        "atenciones": []
     },
     {
         "id": "4",
-        "nombre": "juan",
-        "apellido": "puto",
-        "dni": "33223322",
-        "cuil": "2232323"
+        "nombre": "Jorge",
+        "apellido": "MEdina",
+        "dni": "187291729",
+        "cuil": "821390127",
+        "atenciones": []
+    },
+    {
+        "id": "5",
+        "nombre": "Luka",
+        "apellido": "Pepepe",
+        "dni": "1723872183",
+        "cuil": "7213871283",
+        "atenciones": "[Atencion(id='1', hora_desde='08:00:00', hora_hasta='12:00:00', dia='Lunes', id_servicio='1', cantidad='20')]"
+    },
+    {
+        "id": "6",
+        "nombre": "Daniel",
+        "apellido": "Bartolom\u00e9",
+        "dni": "347823479",
+        "cuil": "20138912370",
+        "atenciones": "[Atencion(id='1', hora_desde='08:00:00', hora_hasta='12:00:00', dia='Lunes', id_servicio='1', cantidad='20')]"
     }
 ]

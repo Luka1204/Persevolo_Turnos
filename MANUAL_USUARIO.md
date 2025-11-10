@@ -92,12 +92,12 @@ Seleccione una opción ingresando el número correspondiente y presione Enter.
 
 ### 5.2 Cancelar un Turno
 1. Seleccione opción 2
-2. Ingrese el ID del turno
+2. Ingrese los datos del cliente para realizar la búsqueda
 3. Confirme la cancelación
 
 ### 5.3 Consultar un Turno
 1. Seleccione opción 3
-2. Ingrese el ID del turno o los criterios de búsqueda
+2. Ingrese los datos del cliente para realizar la búsqueda
 3. El sistema mostrará los detalles del turno
 
 ## 6. Gestión de Profesionales

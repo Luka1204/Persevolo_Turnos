@@ -41,9 +41,10 @@ class ServiciosController:
 
     
     def solicitar_guardar_servicio(self):
+        
         nombre = input('Ingrese el nombre del servcio: ')
-        duracion = int(input('Ingrese la duracion (min) del servcio: '))        
-        precio = float(input('Ingrese el precio del servcio: '))
+        duracion = input('Ingrese la duracion (min) del servcio: ')        
+        precio = input('Ingrese el precio del servcio: ')
         
         if ((nombre == '' or duracion == '' or precio == '' ) or (duracion == 0 or precio == 0.00)):
             return False, {"error": "Hay campos incompletos, por favor intente denuevo"}        

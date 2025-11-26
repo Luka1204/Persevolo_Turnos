@@ -112,9 +112,9 @@ class TurnoController:
         except (IndexError, ValueError):
             print("Selección inválida.")
             return False, {"error": "Selección inválida"}
-
-        turno.estado = 'cancelado'
-        Turno.save_all(Turno.all())
+        turno.cliente_id = ''
+        turno.estado = 'disponible'
+        turno.update()
         print("Turno cancelado correctamente.")
         return True, turno
 

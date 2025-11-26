@@ -193,7 +193,7 @@ class AtencionController:
         atencion = Atencion.where(hora_desde=hora_desde_s,hora_hasta=hora_hasta_s,dia=dia_s.nombre,id_servicio=servicio_s.id)
         if not atencion:
             return False, {"error":"No sé encontró la atención"}
-        
+        print("Atención encontrada: ",atencion[0])
         return atencion[0]
     
     def solicitar_eliminar_atencion(self):

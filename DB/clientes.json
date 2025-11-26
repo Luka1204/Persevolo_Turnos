@@ -6,5 +6,13 @@
         "dni": "92848702",
         "email": "santiperez@gmail.com",
         "telefono": "1167643321"
+    },
+    {
+        "id": "2",
+        "nombre": "Luka",
+        "apellido": "Reyes",
+        "dni": "123456789",
+        "email": "luka@luka.com",
+        "telefono": "1278126182"
     }
 ]

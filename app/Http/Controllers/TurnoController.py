@@ -249,29 +249,3 @@ class TurnoController:
             return False, {"error": "Turno no encontrado"}
         except Exception as e:
             return False, {"error": f"Error al solicitar turno: {str(e)}"}
-
-    def cancelar_turno(self, request: Request):
-        """Cancela un turno."""
-        if request is None:
-            turno_id = input("ID del turno a cancelar: ")
-            request = Request({'turno_id': turno_id})
-
-        request.require('turno_id')
-
-        if request.has_errors():
-            return False, request.errors
-
-        turno_id = request.get_str('turno_id')
-        
-        try:
-            turnos = Turno.all()
-            for turno in turnos:
-                if turno.id == turno_id:
-                    turno.estado = 'cancelado'
-                    Turno.save_all(turnos)
-                    return True, turno
-            
-            return False, {"error": "Turno no encontrado"}
-            
-        except Exception as e:
-            return False, {"error": f"Error al cancelar turno: {str(e)}"}

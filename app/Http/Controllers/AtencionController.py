@@ -57,9 +57,13 @@ class AtencionController:
             for dia in dias:
                 print(dia.id,")"," ",dia.nombre)
             
-            opc_dia = int(input("Ingrese una opción: "))
+            opc_dia = input("Ingrese una opción: ")
             
-            dia = dias[opc_dia-1]
+            if not opc_dia.isnumeric():
+                print("Elija una opcion correcta!")
+                return False 
+            
+            dia = dias[int(opc_dia)-1]
             
             
             
